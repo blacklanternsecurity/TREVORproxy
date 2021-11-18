@@ -6,7 +6,6 @@ import sys
 import time
 import logging
 import argparse
-from time import sleep
 from shutil import which
 from pathlib import Path
 
@@ -86,21 +85,27 @@ def main():
 
         elif options.proxytype == 'subnet':
 
+            # make sure executables exist
+            for binary in ['iptables']:
+                if not which(binary):
+                    log.error(f'Please install {binary}')
+                    sys.exit(1)
+
             from lib.subnet import SubnetProxy
             from lib.socks import ThreadingTCPServer, SocksProxy
 
-            interface_proxy = SubnetProxy(interface=options.interface, subnet=options.subnet)
+            subnet_proxy = SubnetProxy(interface=options.interface, subnet=options.subnet)
             try:
-                interface_proxy.start()
+                subnet_proxy.start()
                 with ThreadingTCPServer(
                         (options.listen_address, options.port),
                         SocksProxy,
-                        source_address_gen=interface_proxy.ipgen
+                        source_address_gen=subnet_proxy.ipgen
                     ) as server:
                     log.info(f'Listening on socks5://{options.listen_address}:{options.port}')
                     server.serve_forever()
             finally:
-                interface_proxy.stop()
+                subnet_proxy.stop()
 
         '''
         from ipaddress import ip_network, ip_address
@@ -126,11 +131,14 @@ def main():
         sys.exit(2)
 
     except TrevorProxyError as e:
+        log.error(f'Error in TREVORproxy: {e}')
+
+    except Exception as e:
         if options.verbose:
             import traceback
             log.error(traceback.format_exc())
         else:
-            log.error(f'Encountered error (-v to debug): {e}')
+            log.error(f'Unhandled error (-v to debug): {e}')
 
     except KeyboardInterrupt:
         log.error('Interrupted')
