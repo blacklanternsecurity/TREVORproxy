@@ -5,13 +5,12 @@
 
 A SOCKS proxy written in Python that randomizes your source IP address. Round-robin your evil packets through SSH tunnels or give them billions of unique source addresses!
 
-![trevorproxy](https://user-images.githubusercontent.com/20261699/142468206-4e9a46db-b18b-4969-8934-19d1f3837300.gif)
-
-
 ## Common use cases
 - WAF bypass
 - Password spraying
 - Web scraping
+
+![trevorproxy](https://user-images.githubusercontent.com/20261699/142468206-4e9a46db-b18b-4969-8934-19d1f3837300.gif)
 
 ## How it works
 TREVORproxy has two modes of operation: a **Subnet Proxy** and an **SSH Proxy**:
@@ -27,19 +26,19 @@ $ pip install trevorproxy
 ~~~
 
 ## Example #1 - Send traffic from random addresses within an IPv6 subnet
-NOTE: This must be run as root
-NOTE: This must be a legitimate subnet, e.g. an IPv6 range allocated to you by your cloud provider.
+- NOTE: `trevorproxy` must be run as root
+- NOTE: This must be a legitimate subnet, e.g. an IPv6 range allocated to you by your cloud provider.
 ~~~bash
 # Configure proxychains
 $ cat /etc/proxychains.conf
 ...
-socks5 ::1 1080
+socks5 127.0.0.1 1080
 ...
 
 # Start TREVORproxy
-$ trevorproxy subnet -s dead:beef::0/64 -i eth0
+$ sudo trevorproxy subnet -s dead:beef::0/64 -i eth0
 [DEBUG] ip route add local dead:beef::0/64 dev eth0
-[INFO] Listening on socks5://::1:1080
+[INFO] Listening on socks5://127.0.0.1:1080
 
 # Test SOCKS proxy
 # Note that each request has a different source IP address
@@ -79,7 +78,7 @@ $ proxychains curl ifconfig.me
 4.3.2.1
 ~~~
 
-## CLI Usage - Global
+## CLI Usage
 ~~~
 $ trevorproxy --help
 usage: trevorproxy [-h] [-p PORT] [-l LISTEN_ADDRESS] [-q] [-v] {interface,ssh} ...
