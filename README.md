@@ -1,5 +1,12 @@
 # TREVORproxy
-TREVORproxy is a SOCKS proxy written in Python that randomizes your source IP address. Round-robin your evil packets through SSH tunnels or give them billions of unique source addresses!
+
+[![License](https://img.shields.io/badge/license-GPLv3-blue.svg)](https://raw.githubusercontent.com/blacklanternsecurity/nmappalyzer/master/LICENSE)
+[![Python Version](https://img.shields.io/badge/python-3.6+-blue)](https://www.python.org)
+
+A SOCKS proxy written in Python that randomizes your source IP address. Round-robin your evil packets through SSH tunnels or give them billions of unique source addresses!
+
+![trevorproxy](https://user-images.githubusercontent.com/20261699/142468206-4e9a46db-b18b-4969-8934-19d1f3837300.gif)
+
 
 ## Common use cases
 - WAF bypass
@@ -20,6 +27,7 @@ $ pip install trevorproxy
 ~~~
 
 ## Example #1 - Send traffic from random addresses within an IPv6 subnet
+NOTE: This must be run as root
 NOTE: This must be a legitimate subnet, e.g. an IPv6 range allocated to you by your cloud provider.
 ~~~bash
 # Configure proxychains
@@ -30,7 +38,7 @@ socks5 ::1 1080
 
 # Start TREVORproxy
 $ trevorproxy subnet -s dead:beef::0/64 -i eth0
-[DEBUG] Running: ip route add local dead:beef::0/64 dev eth0
+[DEBUG] ip route add local dead:beef::0/64 dev eth0
 [INFO] Listening on socks5://::1:1080
 
 # Test SOCKS proxy
@@ -56,8 +64,8 @@ $ trevorproxy ssh root@1.2.3.4 root@4.3.2.1
 [DEBUG] Waiting for /usr/bin/ssh root@1.2.3.4 -D 32482 -o StrictHostKeychecking=no
 [DEBUG] Waiting for /usr/bin/ssh root@4.3.2.1 -D 32483 -o StrictHostKeychecking=no
 [DEBUG] Creating iptables rules
-[DEBUG] Running: iptables -A OUTPUT -t nat -d 127.0.0.1 -o lo -p tcp --dport 1080 -j DNAT --to-destination 127.0.0.1:32482 -m statistic --mode nth --every 2 --packet 0
-[DEBUG] Running: iptables -A OUTPUT -t nat -d 127.0.0.1 -o lo -p tcp --dport 1080 -j DNAT --to-destination 127.0.0.1:32483
+[DEBUG] iptables -A OUTPUT -t nat -d 127.0.0.1 -o lo -p tcp --dport 1080 -j DNAT --to-destination 127.0.0.1:32482 -m statistic --mode nth --every 2 --packet 0
+[DEBUG] iptables -A OUTPUT -t nat -d 127.0.0.1 -o lo -p tcp --dport 1080 -j DNAT --to-destination 127.0.0.1:32483
 [INFO] Listening on socks5://127.0.0.1:1080
 
 # Test SOCKS proxy
