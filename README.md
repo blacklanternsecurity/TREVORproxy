@@ -14,9 +14,9 @@ A SOCKS proxy written in Python that randomizes your source IP address. Round-ro
 
 ## How it works
 TREVORproxy has two modes of operation: a **Subnet Proxy** and an **SSH Proxy**:
-- TREVORproxy's **Subnet Proxy** mode uses the **AnyIP** feature of the Linux kernel to assign an entire subnet to your network interface, and give every connection a random source IP address from that subnet.
+- **Subnet Proxy** mode uses the **AnyIP** feature of the Linux kernel to assign an entire subnet to your network interface, and give every connection a random source IP address from that subnet.
     - E.g. if your cloud provider gives you a `/64` IPv6 range, you can send your traffic from over **eighteen quintillion** (18,446,744,073,709,551,616) unique IP addresses.
-- TREVORproxy's **SSH Proxy** mode combines `iptables` and SSH's SOCKS proxy feature (`ssh -D`) to round-robin packets through remote systems (cloud VMs, etc.)
+- **SSH Proxy** mode combines `iptables` and SSH's SOCKS proxy feature (`ssh -D`) to round-robin packets through remote systems (cloud VMs, etc.)
 
 NOTE: TREVORproxy is not intended as a DoS tool, as it does not "spoof" packets. It is a fully-functioning SOCKS proxy, meaning that it is designed to accept return traffic.
 
@@ -127,3 +127,7 @@ optional arguments:
   --base-port BASE_PORT
                         Base listening port to use for SOCKS proxies (default: 32482)
 ~~~
+
+![trevor](https://user-images.githubusercontent.com/20261699/92336575-27071380-f070-11ea-8dd4-5ba42c7d04b7.jpeg)
+
+`#trevorforget`
