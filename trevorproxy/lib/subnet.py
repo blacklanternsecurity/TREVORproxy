@@ -41,12 +41,12 @@ class SubnetProxy:
     def start(self):
 
         cmd = ['ip', 'route', 'add', 'local', str(self.subnet), 'dev', str(self.interface)]
-        log.debug(f'Running: {" ".join(cmd)}')
+        log.debug(' '.join(cmd))
         sp.run(cmd)
 
 
     def stop(self):
 
         cmd = ['ip', 'route', 'del', 'local', str(self.subnet), 'dev', str(self.interface)]
-        log.debug(f'Running: {" ".join(cmd)}')
+        log.debug(' '.join(cmd))
         sp.run(cmd)

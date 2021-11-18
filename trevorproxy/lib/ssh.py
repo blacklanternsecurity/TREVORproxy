@@ -154,7 +154,7 @@ class IPTables:
                 self.iptables_rules.append(iptables_main)
 
                 cmd = self.args_pre + iptables_add + iptables_main
-                log.debug('Running: ' + ' '.join(cmd))
+                log.debug(' '.join(cmd))
                 sp.run(cmd)
 
 
@@ -165,7 +165,7 @@ class IPTables:
         for rule in self.iptables_rules:
             iptables_del = ['iptables', '-D']
             cmd = self.args_pre + iptables_del + rule
-            log.debug('Running: ' + ' '.join(cmd))
+            log.debug(' '.join(cmd))
             sp.run(cmd)
 
 
