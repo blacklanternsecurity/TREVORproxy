@@ -31,7 +31,7 @@ def main():
 
     subnet = subparsers.add_parser('subnet', help='round-robin traffic from subnet')
     subnet.add_argument('-i', '--interface', help='Interface to send packets on')
-    subnet.add_argument('-s', '--subnet', help='Subnet to send packets from')
+    subnet.add_argument('-s', '--subnet', required=True, help='Subnet to send packets from')
 
     ssh = subparsers.add_parser('ssh', help='round-robin traffic through SSH hosts')
     ssh.add_argument('ssh_hosts', nargs='+', help='Round-robin load-balance through these SSH hosts (user@host)')
@@ -100,7 +100,7 @@ def main():
                 with ThreadingTCPServer(
                         (options.listen_address, options.port),
                         SocksProxy,
-                        source_address_gen=subnet_proxy.ipgen
+                        proxy=subnet_proxy,
                     ) as server:
                     log.info(f'Listening on socks5://{options.listen_address}:{options.port}')
                     server.serve_forever()

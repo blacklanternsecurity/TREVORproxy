@@ -17,7 +17,7 @@ class ThreadingTCPServer(ThreadingMixIn, TCPServer):
 
         self.username = kwargs.pop('username', '')
         self.password = kwargs.pop('password', '')
-        self.source_address_gen = kwargs.pop('source_address_gen')
+        self.proxy = kwargs.pop('proxy')
         self.allow_reuse_address = True
         super().__init__(*args, **kwargs)
 
@@ -25,8 +25,6 @@ class ThreadingTCPServer(ThreadingMixIn, TCPServer):
 class SocksProxy(StreamRequestHandler):
 
     def handle(self):
-
-        self.ip_version = 4
 
         log.debug('Accepting connection from %s:%s' % self.client_address)
 
@@ -58,17 +56,37 @@ class SocksProxy(StreamRequestHandler):
             version, cmd, _, address_type = struct.unpack("!BBBB", self.connection.recv(4))
             assert version == SOCKS_VERSION
 
+            address = None
+            address_family = (socket.AF_INET6 if self.server.proxy.subnet.version == 6 else socket.AF_INET)
+
             if address_type == 1:  # IPv4
-                self.ip_version = 4
                 address = socket.inet_ntop(socket.AF_INET, self.connection.recv(4))
-                ip_version = 4
+                self.address_family = socket.AF_INET6
+
             if address_type == 4:  # IPv6
                 address = socket.inet_ntop(socket.AF_INET6, self.connection.recv(16))
-                self.ip_version = 6
+                self.address_family = socket.AF_INET6
+
             elif address_type == 3:  # Domain name
                 domain_length = self.connection.recv(1)[0]
-                address = self.connection.recv(domain_length)
-                address = socket.gethostbyname(address)
+                domain = self.connection.recv(domain_length)
+                if self.server.proxy.subnet.version == 6:
+                    resolve_order = [socket.AF_INET6, socket.AF_INET]
+                else:
+                    resolve_order = [socket.AF_INET, socket.AF_INET6]
+                for family in resolve_order:
+                    try:
+                        log.debug(f'Trying to resolve {domain} via {str(family)}')
+                        address = socket.getaddrinfo(domain, 0, family)[0][-1][0]
+                        address_family = family
+                        log.debug(f'Successfully resolved {domain} to {address} via {str(family)}')
+                        break
+                    except Exception as e:
+                        log.debug(f'Failed to resolve {domain} via {str(family)}')
+                        continue
+                if address is None:
+                    log.error(f'Could not resolve hostname {address}')
+                    return
             port = struct.unpack('!H', self.connection.recv(2))[0]
 
         except Exception as e:
@@ -80,31 +98,37 @@ class SocksProxy(StreamRequestHandler):
         # reply
         try:
             if cmd == 1:  # CONNECT
-                family = (socket.AF_INET if self.ip_version == 4 else socket.AF_INET6)
-                remote = socket.socket(family, socket.SOCK_STREAM)
+                subnet_family = (socket.AF_INET if self.server.proxy.subnet.version == 4 else socket.AF_INET6)
+                remote = socket.socket(address_family, socket.SOCK_STREAM)
 
-                random_source_addr = str(next(self.server.source_address_gen))
-                log.debug(f'Using random source address: {random_source_addr}')
+                # if the IP families match, then randomize source address
+                if subnet_family == address_family:
+                    random_source_addr = str(next(self.server.proxy.ipgen))
+                    log.debug(f'Using random source address: {random_source_addr}')
 
-                # special case for IPv6
-                if self.ip_version == 6:
-                    remote.setsockopt(socket.SOL_IP, socket.IP_TRANSPARENT, 1)
+                    # special case for IPv6
+                    if address_family == socket.AF_INET6:
+                        remote.setsockopt(socket.SOL_IP, socket.IP_TRANSPARENT, 1)
 
-                # This dies when proxy_dns is enabled
-                '''
-                $ proxychains curl -6 api64.ipify.org
-                    ProxyChains-3.1 (http://proxychains.sf.net)
-                    |DNS-request| api64.ipify.org
-                    |S-chain|-<>-127.0.0.1:1080-<><>-4.2.2.2:53-<--timeout
-                    |DNS-response|: api64.ipify.org does not exist
-                    curl: (6) Could not resolve host: api64.ipify.or
+                    # This dies when proxy_dns is enabled
+                    '''
+                    $ proxychains curl -6 api64.ipify.org
+                        ProxyChains-3.1 (http://proxychains.sf.net)
+                        |DNS-request| api64.ipify.org
+                        |S-chain|-<>-127.0.0.1:1080-<><>-4.2.2.2:53-<--timeout
+                        |DNS-response|: api64.ipify.org does not exist
+                        curl: (6) Could not resolve host: api64.ipify.or
 
-                [ERROR] Error in reply: Traceback (most recent call last):
-                  File "/root/trevorproxy/trevorproxy/lib/socks.py", line 101, in handle
+                    [ERROR] Error in reply: Traceback (most recent call last):
+                      File "/root/trevorproxy/trevorproxy/lib/socks.py", line 101, in handle
+                        remote.bind((random_source_addr, 0))
+                    socket.gaierror: [Errno -9] Address family for hostname not supported
+                    '''
                     remote.bind((random_source_addr, 0))
-                socket.gaierror: [Errno -9] Address family for hostname not supported
-                '''
-                remote.bind((random_source_addr, 0))
+
+                # otherwise, passthrough
+                else:
+                    log.warning(f'{str(address_family)} does not match that of subnet ({str(subnet_family)}, source IP randomization is impossible.')
 
                 remote.connect((address, port))
                 bind_address = remote.getsockname()
@@ -112,7 +136,7 @@ class SocksProxy(StreamRequestHandler):
             else:
                 self.server.close_request(self.request)
 
-            addr_format = ("I" if self.ip_version == 4 else "IIII")
+            addr_format = ("I" if self.address_family == socket.AF_INET else "IIII")
             addr, port = bind_address[:2]
             reply = struct.pack(f"!BBBBIH", SOCKS_VERSION, 0, 0, 1, address_type, port)
 
