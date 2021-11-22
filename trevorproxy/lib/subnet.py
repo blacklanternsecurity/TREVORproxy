@@ -21,10 +21,12 @@ class SubnetProxy:
         self.subnet = subnet
         if self.subnet is None:
             log.info(f'No subnet specified, detecting IPv{version} interfaces.')
-            self.subnet = autodetect_address_pool(version=version)
+            #self.subnet = autodetect_address_pool(version=version)
             if not self.subnet:
                 raise SubnetProxyError('Failed to detect IP subnet')
             log.debug(f'Successfully detected subnet: {self.subnet}')
+        else:
+            self.subnet = ipaddress.ip_network(self.subnet)
 
         # if no interface is requested
         self.interface = interface
