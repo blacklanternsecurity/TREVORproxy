@@ -62,7 +62,7 @@ class SocksProxy(StreamRequestHandler):
             if address_type == 1:  # IPv4
                 log.debug('Address type == IPv4')
                 address = socket.inet_ntop(socket.AF_INET, self.connection.recv(4))
-                self.address_family = socket.AF_INET6
+                self.address_family = socket.AF_INET
 
             if address_type == 4:  # IPv6
                 log.debug('Address type == IPv6')
