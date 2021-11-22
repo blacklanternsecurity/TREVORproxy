@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "trevorproxy"
-version = "1.0.0"
+version = "1.0.1"
 description = "Rotate your source IP address via SSH proxies and other methods"
 authors = ["TheTechromancer"]
 license = "GPL-3.0"
