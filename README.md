@@ -29,12 +29,6 @@ $ pip install trevorproxy
 - NOTE: In `subnet` mode, `trevorproxy` must be run as root
 - NOTE: This must be a legitimate subnet, e.g. an IPv6 range allocated to you by your cloud provider.
 ~~~bash
-# Configure proxychains
-$ cat /etc/proxychains.conf
-...
-socks5 127.0.0.1 1080
-...
-
 # Start TREVORproxy
 $ sudo trevorproxy subnet -s dead:beef::0/64 -i eth0
 [DEBUG] ip route add local dead:beef::0/64 dev eth0
@@ -42,18 +36,24 @@ $ sudo trevorproxy subnet -s dead:beef::0/64 -i eth0
 
 # Test SOCKS proxy
 # Note that each request has a different source IP address
-$ proxychains curl -6 api64.ipify.org
+$ curl --proxy socks5://127.0.0.1:1080 -6 api64.ipify.org
 dead:beef::74d0:b1be:3166:c934
-$ proxychains curl -6 api64.ipify.org
+$ curl --proxy socks5://127.0.0.1:1080 -6 api64.ipify.org
 dead:beef::4927:1b4:8e5f:d44d
-$ proxychains curl -6 api64.ipify.org
+$ curl --proxy socks5://127.0.0.1:1080 -6 api64.ipify.org
 dead:beef::2bb8:7b79:706e:cb7d
-$ proxychains curl -6 api64.ipify.org
+$ curl --proxy socks5://127.0.0.1:1080 -6 api64.ipify.org
 dead:beef::7e13:abe3:dc24:5a00
 ~~~
 
 ## Example #2 - Send traffic through SSH tunnels
 ~~~bash
+# Configure proxychains
+$ cat /etc/proxychains.conf
+...
+socks5 127.0.0.1 1080
+...
+
 # Start TREVORproxy
 $ trevorproxy ssh root@1.2.3.4 root@4.3.2.1
 [DEBUG] Opening SSH connection to root@1.2.3.4
