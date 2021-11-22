@@ -60,14 +60,17 @@ class SocksProxy(StreamRequestHandler):
             address_family = (socket.AF_INET6 if self.server.proxy.subnet.version == 6 else socket.AF_INET)
 
             if address_type == 1:  # IPv4
+                log.debug('Address type == IPv4')
                 address = socket.inet_ntop(socket.AF_INET, self.connection.recv(4))
                 self.address_family = socket.AF_INET6
 
             if address_type == 4:  # IPv6
+                log.debug('Address type == IPv6')
                 address = socket.inet_ntop(socket.AF_INET6, self.connection.recv(16))
                 self.address_family = socket.AF_INET6
 
             elif address_type == 3:  # Domain name
+                log.debug(f'Address type == domain name')
                 domain_length = self.connection.recv(1)[0]
                 domain = self.connection.recv(domain_length)
                 if self.server.proxy.subnet.version == 6:
@@ -87,6 +90,7 @@ class SocksProxy(StreamRequestHandler):
                 if address is None:
                     log.error(f'Could not resolve hostname {address}')
                     return
+            log.debug(f'Destination address: {address}')
             port = struct.unpack('!H', self.connection.recv(2))[0]
 
         except Exception as e:
@@ -103,6 +107,7 @@ class SocksProxy(StreamRequestHandler):
 
                 # if the IP families match, then randomize source address
                 if subnet_family == address_family:
+                    log.debug(f'{str(address_family)} matches subnet ({str(subnet_family)}, randomizing source address')
                     random_source_addr = str(next(self.server.proxy.ipgen))
                     log.debug(f'Using random source address: {random_source_addr}')
 
