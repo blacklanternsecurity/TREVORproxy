@@ -57,7 +57,7 @@ class SocksProxy(StreamRequestHandler):
             assert version == SOCKS_VERSION
 
             address = None
-            address_family = (socket.AF_INET6 if self.server.proxy.subnet.version == 6 else socket.AF_INET)
+            self.address_family = (socket.AF_INET6 if self.server.proxy.subnet.version == 6 else socket.AF_INET)
 
             if address_type == 1:  # IPv4
                 log.debug('Address type == IPv4')
@@ -81,7 +81,7 @@ class SocksProxy(StreamRequestHandler):
                     try:
                         log.debug(f'Trying to resolve {domain} via {str(family)}')
                         address = socket.getaddrinfo(domain, 0, family)[0][-1][0]
-                        address_family = family
+                        self.address_family = family
                         log.debug(f'Successfully resolved {domain} to {address} via {str(family)}')
                         break
                     except Exception as e:
@@ -103,16 +103,16 @@ class SocksProxy(StreamRequestHandler):
         try:
             if cmd == 1:  # CONNECT
                 subnet_family = (socket.AF_INET if self.server.proxy.subnet.version == 4 else socket.AF_INET6)
-                remote = socket.socket(address_family, socket.SOCK_STREAM)
+                remote = socket.socket(self.address_family, socket.SOCK_STREAM)
 
                 # if the IP families match, then randomize source address
-                if subnet_family == address_family:
-                    log.debug(f'{str(address_family)} matches subnet ({str(subnet_family)}, randomizing source address')
+                if subnet_family == self.address_family:
+                    log.debug(f'{str(self.address_family)} matches subnet ({str(subnet_family)}, randomizing source address')
                     random_source_addr = str(next(self.server.proxy.ipgen))
                     log.debug(f'Using random source address: {random_source_addr}')
 
                     # special case for IPv6
-                    if address_family == socket.AF_INET6:
+                    if self.address_family == socket.AF_INET6:
                         remote.setsockopt(socket.SOL_IP, socket.IP_TRANSPARENT, 1)
 
                     # This dies when proxy_dns is enabled
@@ -133,7 +133,7 @@ class SocksProxy(StreamRequestHandler):
 
                 # otherwise, passthrough
                 else:
-                    log.warning(f'{str(address_family)} does not match that of subnet ({str(subnet_family)}, source IP randomization is impossible.')
+                    log.warning(f'{str(self.address_family)} does not match that of subnet ({str(subnet_family)}, source IP randomization is impossible.')
 
                 remote.connect((address, port))
                 bind_address = remote.getsockname()
