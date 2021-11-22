@@ -4,7 +4,7 @@ import threading
 from .errors import *
 import subprocess as sp
 from .cyclic import ipgen
-from .util import autodetect_address_pool
+from .util import autodetect_address_pool, autodetect_interface
 
 log = logging.getLogger('trevorproxy.interface')
 

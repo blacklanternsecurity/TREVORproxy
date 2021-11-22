@@ -18,6 +18,7 @@ class ThreadingTCPServer(ThreadingMixIn, TCPServer):
         self.username = kwargs.pop('username', '')
         self.password = kwargs.pop('password', '')
         self.source_address_gen = kwargs.pop('source_address_gen')
+        self.allow_reuse_address = True
         super().__init__(*args, **kwargs)
 
 
@@ -43,16 +44,7 @@ class SocksProxy(StreamRequestHandler):
             # get available methods
             methods = self.get_available_methods(nmethods)
 
-            # accept only USERNAME/PASSWORD auth
-            if 2 not in set(methods):
-                # close connection
-                self.server.close_request(self.request)
-                return
-
-            # send welcome message
-            self.connection.sendall(struct.pack("!BB", SOCKS_VERSION, 2))
-
-            if not self.verify_credentials():
+            if not self.verify_credentials(methods):
                 return
 
         except Exception as e:
@@ -98,7 +90,22 @@ class SocksProxy(StreamRequestHandler):
                 if self.ip_version == 6:
                     remote.setsockopt(socket.SOL_IP, socket.IP_TRANSPARENT, 1)
 
+                # This dies when proxy_dns is enabled
+                '''
+                $ proxychains curl -6 api64.ipify.org
+                    ProxyChains-3.1 (http://proxychains.sf.net)
+                    |DNS-request| api64.ipify.org
+                    |S-chain|-<>-127.0.0.1:1080-<><>-4.2.2.2:53-<--timeout
+                    |DNS-response|: api64.ipify.org does not exist
+                    curl: (6) Could not resolve host: api64.ipify.or
+
+                [ERROR] Error in reply: Traceback (most recent call last):
+                  File "/root/trevorproxy/trevorproxy/lib/socks.py", line 101, in handle
+                    remote.bind((random_source_addr, 0))
+                socket.gaierror: [Errno -9] Address family for hostname not supported
+                '''
                 remote.bind((random_source_addr, 0))
+
                 remote.connect((address, port))
                 bind_address = remote.getsockname()
                 log.debug(f'Connected to {address}:{port}')
@@ -134,22 +141,35 @@ class SocksProxy(StreamRequestHandler):
         return methods
 
 
-    def verify_credentials(self):
+    def verify_credentials(self, methods):
+        '''
+        Accept but do not require authentication
+        '''
 
-        valid = False
+        valid = True
 
-        version = ord(self.connection.recv(1))
-        assert version == 1
+        if 2 in set(methods):
 
-        username_len = ord(self.connection.recv(1))
-        username = self.connection.recv(username_len).decode('utf-8')
+            log.debug('Accepting username/password auth')
 
-        password_len = ord(self.connection.recv(1))
-        password = self.connection.recv(password_len).decode('utf-8')
+            # send welcome message
+            self.connection.sendall(struct.pack("!BB", SOCKS_VERSION, 2))
 
-        if (username == self.server.username and password == self.server.password) or \
-            (not self.server.username and not self.server.password):
-            valid = True
+            version = ord(self.connection.recv(1))
+            assert version == 1
+
+            username_len = ord(self.connection.recv(1))
+            username = self.connection.recv(username_len).decode('utf-8')
+
+            password_len = ord(self.connection.recv(1))
+            password = self.connection.recv(password_len).decode('utf-8')
+
+            if (username == self.server.username and password == self.server.password) or \
+                (not self.server.username and not self.server.password):
+                valid = True
+
+        else:
+            version = 5
 
         if valid:
             # success, status = 0
