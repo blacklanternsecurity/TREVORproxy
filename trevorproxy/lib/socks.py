@@ -115,20 +115,6 @@ class SocksProxy(StreamRequestHandler):
                     if self.address_family == socket.AF_INET6:
                         remote.setsockopt(socket.SOL_IP, socket.IP_TRANSPARENT, 1)
 
-                    # This dies when proxy_dns is enabled
-                    '''
-                    $ proxychains curl -6 api64.ipify.org
-                        ProxyChains-3.1 (http://proxychains.sf.net)
-                        |DNS-request| api64.ipify.org
-                        |S-chain|-<>-127.0.0.1:1080-<><>-4.2.2.2:53-<--timeout
-                        |DNS-response|: api64.ipify.org does not exist
-                        curl: (6) Could not resolve host: api64.ipify.or
-
-                    [ERROR] Error in reply: Traceback (most recent call last):
-                      File "/root/trevorproxy/trevorproxy/lib/socks.py", line 101, in handle
-                        remote.bind((random_source_addr, 0))
-                    socket.gaierror: [Errno -9] Address family for hostname not supported
-                    '''
                     remote.bind((random_source_addr, 0))
 
                 # otherwise, passthrough

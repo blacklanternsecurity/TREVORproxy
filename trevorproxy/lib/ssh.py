@@ -13,17 +13,18 @@ log = logging.getLogger('trevorproxy.ssh')
 
 class SSHProxy:
 
-    def __init__(self, host, port, key=None, key_pass='', ssh_args={}):
+    def __init__(self, host, proxy_port, key=None, key_pass='', ssh_args={}):
 
         self.host = host
-        self.port = port
+        self.proxy_port = proxy_port
         self.key = key
         self.key_pass = key_pass
         self.ssh_args = dict(ssh_args)
         # Enable SSH socks proxy
-        self.ssh_args['D'] = str(port)
+        self.ssh_args['D'] = str(proxy_port)
         # Disable the "Are you sure you want to continue connecting" prompt
         self.ssh_args['o'] = 'StrictHostKeychecking=no'
+        self.ssh_args['i'] = str(Path(key).absolute())
         self.sh = None
         self.command = ''
         self._ssh_stdout = ''
@@ -33,7 +34,7 @@ class SSHProxy:
     def start(self, wait=True, timeout=30):
 
         self.stop()
-        log.debug(f'Opening SSH connection to {self.host}')
+        log.info(f'Opening SSH connection to {self.host}')
 
         self._ssh_stdout = ''
         self._password_entered = False
@@ -56,7 +57,7 @@ class SSHProxy:
             while not self.is_connected():
                 left -= 1
                 if left <= 0 or not self.sh.is_alive():
-                    raise SSHProxy(f'Failed to start SSHProxy {self}')
+                    raise SSHProxyError(f'Failed to start SSHProxy {self}')
                 else:
                     sleep(1)
 
@@ -89,7 +90,7 @@ class SSHProxy:
             return False
 
         netstat = sp.run(['ss', '-ntlp'], stderr=sp.DEVNULL, stdout=sp.PIPE)
-        if not f' 127.0.0.1:{self.port} ' in netstat.stdout.decode():
+        if not f' 127.0.0.1:{self.proxy_port} ' in netstat.stdout.decode():
             log.debug(f'Waiting for {" ".join([x.decode() for x in self.sh.cmd])}')
             self.running = False
         else:
@@ -106,7 +107,7 @@ class SSHProxy:
 
     def __str__(self):
 
-        return f'socks5://127.0.0.1:{self.port}'
+        return f'socks5://127.0.0.1:{self.proxy_port}'
 
 
     def __repr__(self):
@@ -117,16 +118,16 @@ class SSHProxy:
 
 class IPTables:
 
-    def __init__(self, proxies, address=None, port=None):
+    def __init__(self, proxies, address=None, proxy_port=None):
 
         if address is None:
             self.address = '127.0.0.1'
         else:
             self.address = str(address)
-        if port is None:
-            self.port = 1080
+        if proxy_port is None:
+            self.proxy_port = 1080
         else:
-            self.port = int(port)
+            self.proxy_port = int(proxy_port)
 
         self.proxies = [p for p in proxies if p is not None]
         self.args_pre = []
@@ -145,7 +146,7 @@ class IPTables:
             if proxy is not None:
                 iptables_add = ['iptables', '-A']
                 iptables_main = ['OUTPUT', '-t', 'nat', '-d', f'{self.address}', '-o', 'lo', '-p', \
-                    'tcp', '--dport', f'{self.port}', '-j', 'DNAT', '--to-destination', f'127.0.0.1:{proxy.port}']
+                    'tcp', '--dport', f'{self.proxy_port}', '-j', 'DNAT', '--to-destination', f'127.0.0.1:{proxy.proxy_port}']
 
                 # if this isn't the last proxy
                 if not i == len(self.proxies)-1:
@@ -185,12 +186,9 @@ class SSHLoadBalancer:
         self.proxies = dict()
         self.socks_server = socks_server
 
-        if self.key is not None:
-            self.args['i'] = str(Path(key).absolute())
-
         for i,host in enumerate(hosts):
-            port = self.base_port + i
-            proxy = SSHProxy(host, port, key, key_pass, ssh_args=self.args)
+            proxy_port = self.base_port + i
+            proxy = SSHProxy(host, proxy_port, key, key_pass, ssh_args=self.args)
             self.proxies[str(proxy)] = proxy
 
         if current_ip:
