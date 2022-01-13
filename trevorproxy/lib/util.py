@@ -170,7 +170,9 @@ def check_ssh_key_passphrase(passphrase, f=None):
     with suppress(Exception):
         p = sp.run(
             cmd,
+            stdout=sp.DEVNULL,
+            stderr=sp.DEVNULL
         )
         return p.returncode == 0
 
-    return False
+    return True
