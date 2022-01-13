@@ -166,12 +166,10 @@ def check_ssh_key_passphrase(passphrase, f=None):
     if f is None:
         f = Path.home() / '.ssh/id_rsa'
 
+    cmd = ['ssh-keygen', '-y', '-P', str(passphrase), '-f', str(f)]
     with suppress(Exception):
         p = sp.run(
-            ['ssh-keygen', '-y', '-f', str(f)],
-            input=f'{passphrase}\n',
-            stdout=sp.DEVNULL,
-            stderr=sp.DEVNULL
+            cmd,
         )
         return p.returncode == 0
 

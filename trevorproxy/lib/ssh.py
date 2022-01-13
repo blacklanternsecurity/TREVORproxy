@@ -24,7 +24,8 @@ class SSHProxy:
         self.ssh_args['D'] = str(proxy_port)
         # Disable the "Are you sure you want to continue connecting" prompt
         self.ssh_args['o'] = 'StrictHostKeychecking=no'
-        self.ssh_args['i'] = str(Path(key).absolute())
+        if key:
+            self.ssh_args['i'] = str(Path(key).absolute())
         self.sh = None
         self.command = ''
         self._ssh_stdout = ''
