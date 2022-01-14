@@ -9,7 +9,14 @@ See the accompanying [**Blog Post**](https://github.com/blacklanternsecurity/TRE
 
 A SOCKS proxy written in Python that randomizes your source IP address. Round-robin your evil packets through SSH tunnels or give them billions of unique source addresses!
 
-![trevorproxy](https://user-images.githubusercontent.com/20261699/142468206-4e9a46db-b18b-4969-8934-19d1f3837300.gif)
+![trevorproxy-diagram](https://user-images.githubusercontent.com/20261699/149545633-a2f14f3a-1abc-4f9a-b589-3a52385ba635.png)
+TREVORproxy IPv6 Subnet Proxy Diagram
+
+![ssh-proxy](https://user-images.githubusercontent.com/20261699/149403633-3b6259c4-6c13-4ae5-abe6-498024a155f5.gif)
+TREVORproxy SSH Proxy Demo
+
+![subnet-proxy](https://user-images.githubusercontent.com/20261699/142468206-4e9a46db-b18b-4969-8934-19d1f3837300.gif)
+TREVORproxy Subnet Proxy Demo
 
 ## Common use cases
 - WAF bypass
