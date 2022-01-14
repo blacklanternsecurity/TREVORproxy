@@ -1,7 +1,11 @@
 # TREVORproxy
 
+By [@thetechr0mancer](https://twitter.com/thetechr0mancer)
+
 [![License](https://img.shields.io/badge/license-GPLv3-blue.svg)](https://raw.githubusercontent.com/blacklanternsecurity/nmappalyzer/master/LICENSE)
-[![Python Version](https://img.shields.io/badge/python-3.7+-blue)](https://www.python.org)
+[![Python Version](https://img.shields.io/badge/python-3.6+-blue)](https://www.python.org)
+
+See the accompanying [**Blog Post**](https://github.com/blacklanternsecurity/TREVORspray/blob/trevorspray-v2/blogpost.md) for a fun rant and some cool demos!
 
 A SOCKS proxy written in Python that randomizes your source IP address. Round-robin your evil packets through SSH tunnels or give them billions of unique source addresses!
 
