@@ -33,7 +33,7 @@ NOTE: TREVORproxy is not intended as a DoS tool, as it does not "spoof" packets.
 
 ## Installation
 ~~~
-$ pip install -U git+https://github.com/blacklanternsecurity/trevorproxy
+$ pip install git+https://github.com/blacklanternsecurity/trevorproxy
 ~~~
 
 ## Example #1 - Send traffic from random addresses within an IPv6 subnet
