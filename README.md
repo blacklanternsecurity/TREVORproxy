@@ -5,6 +5,11 @@ By [@thetechr0mancer](https://twitter.com/thetechr0mancer)
 [![License](https://img.shields.io/badge/license-GPLv3-blue.svg)](https://raw.githubusercontent.com/blacklanternsecurity/nmappalyzer/master/LICENSE)
 [![Python Version](https://img.shields.io/badge/python-3.6+-blue)](https://www.python.org)
 
+## Installation
+~~~bash
+pip install git+https://github.com/blacklanternsecurity/trevorproxy
+~~~
+
 See the accompanying [**Blog Post**](https://github.com/blacklanternsecurity/TREVORspray/blob/trevorspray-v2/blogpost.md) for a fun rant and some cool demos!
 
 A SOCKS proxy written in Python that randomizes your source IP address. Round-robin your evil packets through SSH tunnels or give them billions of unique source addresses!
@@ -30,11 +35,6 @@ TREVORproxy has two modes of operation: a **Subnet Proxy** and an **SSH Proxy**:
 - **SSH Proxy** mode combines `iptables` with SSH's SOCKS proxy feature (`ssh -D`) to round-robin packets through remote systems (cloud VMs, etc.)
 
 NOTE: TREVORproxy is not intended as a DoS tool, as it does not "spoof" packets. It is a fully-functioning SOCKS proxy, meaning that it is designed to accept return traffic.
-
-## Installation
-~~~
-$ pip install git+https://github.com/blacklanternsecurity/trevorproxy
-~~~
 
 ## Example #1 - Send traffic from random addresses within an IPv6 subnet
 - NOTE: In `subnet` mode, `trevorproxy` must be run as root
