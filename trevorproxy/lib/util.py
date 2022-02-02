@@ -176,3 +176,11 @@ def check_ssh_key_passphrase(passphrase, f=None):
         return p.returncode == 0
 
     return True
+
+
+def sudo_run(cmd, *args, **kwargs):
+
+    if os.geteuid() != 0:
+        cmd = ['sudo'] + cmd
+    log.debug(' '.join(cmd))
+    return sp.run(cmd, *args, **kwargs)

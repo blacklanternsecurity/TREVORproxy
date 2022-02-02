@@ -6,6 +6,7 @@ from . import logger
 from time import sleep
 import subprocess as sp
 from pathlib import Path
+from .util import sudo_run
 from .errors import SSHProxyError
 
 log = logging.getLogger('trevorproxy.ssh')
@@ -131,9 +132,6 @@ class IPTables:
             self.proxy_port = int(proxy_port)
 
         self.proxies = [p for p in proxies if p is not None]
-        self.args_pre = []
-        if os.geteuid() != 0:
-            self.args_pre = ['sudo']
 
         self.iptables_rules = []
 
@@ -155,9 +153,8 @@ class IPTables:
 
                 self.iptables_rules.append(iptables_main)
 
-                cmd = self.args_pre + iptables_add + iptables_main
-                log.debug(' '.join(cmd))
-                sp.run(cmd)
+                cmd = siptables_add + iptables_main
+                sudo_run(cmd)
 
 
     def stop(self):
@@ -166,9 +163,8 @@ class IPTables:
 
         for rule in self.iptables_rules:
             iptables_del = ['iptables', '-D']
-            cmd = self.args_pre + iptables_del + rule
-            log.debug(' '.join(cmd))
-            sp.run(cmd)
+            cmd = iptables_del + rule
+            sudo_run(cmd)
 
 
 
