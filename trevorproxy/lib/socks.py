@@ -109,7 +109,7 @@ class SocksProxy(StreamRequestHandler):
                 if subnet_family == self.address_family:
                     log.debug(f'{str(self.address_family)} matches subnet ({str(subnet_family)}, randomizing source address')
                     random_source_addr = str(next(self.server.proxy.ipgen))
-                    log.debug(f'Using random source address: {random_source_addr}')
+                    log.info(f'Using random source address: {random_source_addr}')
 
                     # special case for IPv6
                     if self.address_family == socket.AF_INET6:

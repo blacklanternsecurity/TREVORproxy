@@ -4,7 +4,7 @@ import threading
 from .errors import *
 import subprocess as sp
 from .cyclic import ipgen
-from .util import autodetect_address_pool, autodetect_interface
+from .util import autodetect_address_pool, autodetect_interface, sudo_run
 
 log = logging.getLogger('trevorproxy.interface')
 
@@ -43,12 +43,10 @@ class SubnetProxy:
     def start(self):
 
         cmd = ['ip', 'route', 'add', 'local', str(self.subnet), 'dev', str(self.interface)]
-        log.debug(' '.join(cmd))
-        sp.run(cmd)
+        sudo_run(cmd)
 
 
     def stop(self):
 
         cmd = ['ip', 'route', 'del', 'local', str(self.subnet), 'dev', str(self.interface)]
-        log.debug(' '.join(cmd))
-        sp.run(cmd)
+        sudo_run(cmd)
