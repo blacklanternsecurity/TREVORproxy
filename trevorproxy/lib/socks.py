@@ -119,7 +119,7 @@ class SocksProxy(StreamRequestHandler):
 
                 # otherwise, passthrough
                 else:
-                    log.warning(f'{str(self.address_family)} does not match that of subnet ({str(subnet_family)}, source IP randomization is impossible.')
+                    log.warning(f'{str(self.address_family)} does not match that of subnet ({str(subnet_family)}), source IP randomization is impossible.')
 
                 remote.connect((address, port))
                 bind_address = remote.getsockname()
