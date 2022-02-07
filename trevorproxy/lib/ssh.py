@@ -34,7 +34,7 @@ class SSHProxy:
 
         self.stop()
 
-        if not self.is_connected()
+        if not self.is_connected():
             log.info(f'Opening SSH connection to {self.host}')
             self._ssh_stdout = ''
             self._password_entered = False
