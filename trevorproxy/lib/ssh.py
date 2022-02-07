@@ -33,23 +33,26 @@ class SSHProxy:
     def start(self, wait=True, timeout=30):
 
         self.stop()
-        log.info(f'Opening SSH connection to {self.host}')
 
-        self._ssh_stdout = ''
-        self._password_entered = False
-        self.sh = sh.ssh(
-            self.host,
-            _out=self._enter_password,
-            _out_bufsize=0,
-            _tty_in=True,
-            _unify_ttys=True,
-            _long_sep=' ',
-            _bg=True,
-            _bg_exc=False,
-            **self.ssh_args
-        )
-        self.command = b' '.join(self.sh.cmd).decode()
-        log.debug(self.command)
+        if not self.is_connected()
+            log.info(f'Opening SSH connection to {self.host}')
+            self._ssh_stdout = ''
+            self._password_entered = False
+            self.sh = sh.ssh(
+                self.host,
+                _out=self._enter_password,
+                _out_bufsize=0,
+                _tty_in=True,
+                _unify_ttys=True,
+                _long_sep=' ',
+                _bg=True,
+                _bg_exc=False,
+                **self.ssh_args
+            )
+            self.command = b' '.join(self.sh.cmd).decode()
+            log.debug(self.command)
+        else:
+            log.debug(f'{self.__class__.__name__}.start() called but SSH connection is already established')
 
         left = int(timeout)
         if wait:
@@ -145,7 +148,7 @@ class IPTables:
                     'tcp', '--dport', f'{self.proxy_port}', '-j', 'DNAT', '--to-destination', f'127.0.0.1:{proxy.proxy_port}']
 
                 # if this isn't the last proxy
-                if not i == len(self.proxies)-1:
+                if not i == len(self.proxies) - 1:
                     iptables_main += ['-m', 'statistic', '--mode', 'nth', '--every', f'{len(self.proxies)-i}', '--packet', '0']
 
                 self.iptables_rules.append(iptables_main)
