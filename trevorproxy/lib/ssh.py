@@ -153,7 +153,7 @@ class IPTables:
 
                 self.iptables_rules.append(iptables_main)
 
-                cmd = siptables_add + iptables_main
+                cmd = iptables_add + iptables_main
                 sudo_run(cmd)
 
 
