@@ -80,7 +80,7 @@ class SSHProxy:
         if self._password_entered or not char:
             # save on CPU
             sleep(.01)
-        else:
+        elif isinstance(char,str):
             self._ssh_stdout += char
             if 'pass' in self._ssh_stdout and self._ssh_stdout.endswith(': '):
                 stdin.put(f'{self.key_pass}\n')
