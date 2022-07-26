@@ -7,7 +7,7 @@ By [@thetechr0mancer](https://twitter.com/thetechr0mancer)
 
 ## Installation
 ~~~bash
-pip install git+https://github.com/blacklanternsecurity/trevorproxy
+pip install git+https://github.com/c3l3si4n/TREVORproxy-tor
 ~~~
 
 See the accompanying [**Blog Post**](https://github.com/blacklanternsecurity/TREVORspray/blob/trevorspray-v2/blogpost.md) for a fun rant and some cool demos!
