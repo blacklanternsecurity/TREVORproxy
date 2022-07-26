@@ -65,6 +65,8 @@ $ cat /etc/proxychains.conf
 socks5 127.0.0.1 1080
 ...
 
+~~~
+
 ## Example #3 - Send traffic through Tor Stream Isolation tunnels
 ~~~bash
 # Configure proxychains
