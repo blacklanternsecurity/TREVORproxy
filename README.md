@@ -64,7 +64,27 @@ $ cat /etc/proxychains.conf
 ...
 socks5 127.0.0.1 1080
 ...
-
+# Start TREVORproxy
+$ trevorproxy ssh root@1.2.3.4 root@4.3.2.1
+[DEBUG] Opening SSH connection to root@1.2.3.4
+[DEBUG] /usr/bin/ssh root@1.2.3.4 -D 32482 -o StrictHostKeychecking=no
+[DEBUG] Opening SSH connection to root@4.3.2.1
+[DEBUG] /usr/bin/ssh root@4.3.2.1 -D 32483 -o StrictHostKeychecking=no
+[DEBUG] Waiting for /usr/bin/ssh root@1.2.3.4 -D 32482 -o StrictHostKeychecking=no
+[DEBUG] Waiting for /usr/bin/ssh root@4.3.2.1 -D 32483 -o StrictHostKeychecking=no
+[DEBUG] Creating iptables rules
+[DEBUG] iptables -A OUTPUT -t nat -d 127.0.0.1 -o lo -p tcp --dport 1080 -j DNAT --to-destination 127.0.0.1:32482 -m statistic --mode nth --every 2 --packet 0
+[DEBUG] iptables -A OUTPUT -t nat -d 127.0.0.1 -o lo -p tcp --dport 1080 -j DNAT --to-destination 127.0.0.1:32483
+[INFO] Listening on socks5://127.0.0.1:1080
+# Test SOCKS proxy
+$ proxychains curl ifconfig.me
+1.2.3.4
+$ proxychains curl ifconfig.me
+4.3.2.1
+$ proxychains curl ifconfig.me
+1.2.3.4
+$ proxychains curl ifconfig.me
+4.3.2.1
 ~~~
 
 ## Example #3 - Send traffic through Tor Stream Isolation tunnels
