@@ -40,6 +40,9 @@ def main():
     ssh.add_argument('-kp', '--key-pass', action='store_true', help=argparse.SUPPRESS)
     ssh.add_argument('--base-port', default=32482, type=int, help='Base listening port to use for SOCKS proxies (default: 32482)')
 
+    tor = subparsers.add_parser('tor', help='round-robin traffic through TOR nodes')
+    tor.add_argument('--base-port', default=32482, type=int, help='Base listening port to use for TOR proxies (default: 32482)')
+
     try:
 
         options = parser.parse_args()
@@ -107,7 +110,35 @@ def main():
                     server.serve_forever()
             finally:
                 subnet_proxy.stop()
+        elif options.proxytype == 'tor':
+            
+            from lib.tor import TorLoadBalancer
 
+            # make sure executables exist
+            for binary in TorLoadBalancer.dependencies:
+                if not which(binary):
+                    log.error(f'Please install {binary}')
+                    sys.exit(1)
+
+
+            load_balancer = TorLoadBalancer(
+                base_port=options.base_port
+            )
+
+            try:
+
+                load_balancer.start()
+                log.info(f'Listening on socks5://{options.listen_address}:{options.port}')
+
+                # serve forever
+                while 1:
+                    # rebuild proxy if it goes down
+                    for proxy in load_balancer.proxies.values():
+                        pass
+                    time.sleep(1)
+
+            finally:
+                load_balancer.stop()
         '''
         from ipaddress import ip_network, ip_address
         blacklist = [ip_address('192.168.0.1'), ip_address('192.168.0.250'), ip_address('192.168.0.133')]

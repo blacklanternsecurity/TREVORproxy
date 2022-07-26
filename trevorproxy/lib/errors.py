@@ -4,5 +4,8 @@ class TrevorProxyError(Exception):
 class SSHProxyError(TrevorProxyError):
     pass
 
+class TorProxyError(TrevorProxyError):
+    pass
+
 class InterfaceProxyError(TrevorProxyError):
     pass
