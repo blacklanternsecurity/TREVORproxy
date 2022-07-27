@@ -42,6 +42,7 @@ def main():
 
     tor = subparsers.add_parser('tor', help='round-robin traffic through TOR nodes')
     tor.add_argument('--base-port', default=32482, type=int, help='Base listening port to use for TOR proxies (default: 32482)')
+    tor.add_argument('--num-instances', default=8, type=int, help='Number of tor chains to spawn (default: 8)')
 
     try:
 
@@ -114,7 +115,6 @@ def main():
             
             from lib.tor import TorLoadBalancer
 
-            # make sure executables exist
             for binary in TorLoadBalancer.dependencies:
                 if not which(binary):
                     log.error(f'Please install {binary}')
@@ -122,7 +122,8 @@ def main():
 
 
             load_balancer = TorLoadBalancer(
-                base_port=options.base_port
+                base_port=options.base_port,
+                num_instances=options.num_instances
             )
 
             try:

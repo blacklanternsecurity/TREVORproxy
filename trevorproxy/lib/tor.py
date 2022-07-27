@@ -151,15 +151,16 @@ class TorLoadBalancer:
 
     dependencies = ['ss', 'iptables', 'sudo', 'tor']
 
-    def __init__(self, base_port=33482, current_ip=False, socks_server=True):
+    def __init__(self, base_port=33482, num_instances=5, current_ip=False, socks_server=True):
 
         self.args = dict()
         self.base_port = base_port
         self.current_ip = current_ip
         self.proxies = dict()
         self.socks_server = socks_server
+        self.num_instances = num_instances
         proxy_ports = []
-        for i in range(5):
+        for i in range(num_instances):
             proxy_ports.append(self.base_port + i)
             
             #self.proxies[str(proxy)] = proxy
