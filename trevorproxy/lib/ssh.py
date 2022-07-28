@@ -118,13 +118,8 @@ class SSHProxy:
 
 
 
-class IPTables:
+class IPTables:        for proxy_address,proxy_port in proxy
 
-    def __init__(self, proxies, address=None, proxy_port=None):
-
-        if address is None:
-            self.address = '127.0.0.1'
-        else:
             self.address = str(address)
         if proxy_port is None:
             self.proxy_port = 1080
