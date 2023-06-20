@@ -1,4 +1,4 @@
-'''
+"""
 cyclic provides an inexpensive approach to iterating over an IP
 space in a random(-ish) manner such that we connect to every host once in
 a scan execution without having to keep track of the IPs that have been
@@ -24,15 +24,14 @@ p - 1 and randomly checking random numbers against the psub1_f until
 we find one that is coprime and map it into Zp*. Because
 totient(totient(p)) ~= 10^9, this should take relatively few
 iterations to find a new generator.
-'''
+"""
 
 import sys
 import ipaddress
 from random import randint
 
 
-def ipgen(network='0.0.0.0/0', blacklist=None):
-
+def ipgen(network="0.0.0.0/0", blacklist=None):
     if blacklist is None:
         blacklist = set()
     else:
@@ -57,47 +56,44 @@ def ipgen(network='0.0.0.0/0', blacklist=None):
 
 
 def prig(net):
-    '''
+    """
     Pseudo Random IP Generator
-    '''
+    """
     while 1:
         offset = int(net.network_address)
-        random_int = randint(0, net.num_addresses-1)
+        random_int = randint(0, net.num_addresses - 1)
         if net.version == 4:
             yield ipaddress.IPv4Address(offset + random_int)
         else:
             yield ipaddress.IPv6Address(offset + random_int)
 
 
-
 def multiplicative_group_of_integers_modulo_prime(net):
-    '''
+    """
     defaults to entire ipv4 internet
     raises ValueError if network string is invalid
-    '''
+    """
     max_prefixlen = 32
 
     while 1:
-
         if net.prefixlen > net.max_prefixlen - 2:
             for i in net:
                 yield i
 
         else:
-
             # precalculated values in the format:
             # mask: (prime, first_primitive_root, [factors of (prime-1)])
             calcd = {
-                0:  (4294967311, 3, [2, 3, 5, 131, 364289]),
-                1:  (2147483659, 2, [2, 3, 149, 2402107]),
-                2:  (1073741827, 2, [2, 3, 59, 3033169]),
-                3:  (536870923, 3, [2, 3, 7, 23, 555767]),
-                4:  (268435459, 2, [2, 3, 19, 87211]),
-                5:  (134217757, 5, [2, 3, 1242757]),
-                6:  (67108879, 3, [2, 3, 1242757]),
-                7:  (33554467, 2, [2, 3, 11, 56489]),
-                8:  (16777259, 2, [2, 23, 103, 3541]),
-                9:  (8388617, 3, [2, 17, 61681]),
+                0: (4294967311, 3, [2, 3, 5, 131, 364289]),
+                1: (2147483659, 2, [2, 3, 149, 2402107]),
+                2: (1073741827, 2, [2, 3, 59, 3033169]),
+                3: (536870923, 3, [2, 3, 7, 23, 555767]),
+                4: (268435459, 2, [2, 3, 19, 87211]),
+                5: (134217757, 5, [2, 3, 1242757]),
+                6: (67108879, 3, [2, 3, 1242757]),
+                7: (33554467, 2, [2, 3, 11, 56489]),
+                8: (16777259, 2, [2, 23, 103, 3541]),
+                9: (8388617, 3, [2, 17, 61681]),
                 10: (4194319, 3, [2, 3, 699053]),
                 11: (2097169, 47, [2, 3, 43691]),
                 12: (1048583, 5, [2, 29, 101, 179]),
@@ -118,11 +114,11 @@ def multiplicative_group_of_integers_modulo_prime(net):
                 27: (37, 2, [2, 3]),
                 28: (17, 3, [2]),
                 29: (11, 2, [2, 5]),
-                30: (5, 2, [2])
+                30: (5, 2, [2]),
             }
 
             prefixlen = net.prefixlen % max_prefixlen
-            numhosts = net.num_addresses - 2 # subtract 2 for network/broadcast address
+            numhosts = net.num_addresses - 2  # subtract 2 for network/broadcast address
             offset = int(net.network_address)
             prime, first_root, prime_factors = calcd[prefixlen]
             phi = prime - 1
@@ -130,10 +126,10 @@ def multiplicative_group_of_integers_modulo_prime(net):
             # compute random primitive root
             rand_root = None
             while rand_root is None:
-                c = randint(3, phi-1)
+                c = randint(3, phi - 1)
                 # check if c is coprime with phi
                 for i in prime_factors:
-                    if i%c == 0 or c%i == 0:
+                    if i % c == 0 or c % i == 0:
                         break
                 else:
                     rand_root = pow(first_root, c, prime)
@@ -150,6 +146,6 @@ def multiplicative_group_of_integers_modulo_prime(net):
                         yield ipaddress.IPv4Address(y)
                     else:
                         yield ipaddress.IPv6Address(y)
-                n = ((n*rand_root) % prime)
+                n = (n * rand_root) % prime
                 if n == seed:
                     break
