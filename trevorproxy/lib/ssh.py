@@ -3,6 +3,7 @@ import logging
 from time import sleep
 import subprocess as sp
 from pathlib import Path
+
 from .util import sudo_run
 from .errors import SSHProxyError
 
@@ -72,11 +73,18 @@ class SSHProxy:
             except:
                 pass
 
+    def _smart_decode(self, data):
+        if isinstance(data, bytes):
+            return data.decode("utf-8", errors="ignore")
+        else:
+            return str(data)
+
     def _enter_password(self, char, stdin):
         if self._password_entered or not char:
             # save on CPU
             sleep(0.01)
         else:
+            char = self._smart_decode(char)
             self._ssh_stdout += char
             if "pass" in self._ssh_stdout and self._ssh_stdout.endswith(": "):
                 stdin.put(f"{self.key_pass}\n")
