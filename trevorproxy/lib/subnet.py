@@ -24,7 +24,7 @@ class SubnetProxy:
                 raise SubnetProxyError("Failed to detect IP subnet")
             log.debug(f"Successfully detected subnet: {self.subnet}")
         else:
-            self.subnet = ipaddress.ip_network(self.subnet)
+            self.subnet = ipaddress.ip_network(self.subnet, strict=False)
 
         # if no interface is requested
         self.interface = interface

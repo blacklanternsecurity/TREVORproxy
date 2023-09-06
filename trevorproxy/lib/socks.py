@@ -20,9 +20,13 @@ class ThreadingTCPServer(ThreadingMixIn, TCPServer):
         super().__init__(*args, **kwargs)
 
 
+class ThreadingTCPServer6(ThreadingTCPServer):
+    address_family = socket.AF_INET6
+
+
 class SocksProxy(StreamRequestHandler):
     def handle(self):
-        log.debug("Accepting connection from %s:%s" % self.client_address)
+        log.debug("Accepting connection from %s:%s", self.client_address[:2])
 
         # greeting header
         try:
@@ -115,7 +119,7 @@ class SocksProxy(StreamRequestHandler):
                 # if the IP families match, then randomize source address
                 if subnet_family == self.address_family:
                     log.debug(
-                        f"{str(self.address_family)} matches subnet ({str(subnet_family)}, randomizing source address"
+                        f"{str(self.address_family)} matches address family ({subnet_family}), randomizing source address"
                     )
                     random_source_addr = str(next(self.server.proxy.ipgen))
                     log.info(f"Using random source address: {random_source_addr}")

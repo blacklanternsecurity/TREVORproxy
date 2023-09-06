@@ -6,6 +6,7 @@ import sys
 import time
 import logging
 import argparse
+import ipaddress
 from shutil import which
 from pathlib import Path
 
@@ -120,14 +121,21 @@ def main():
                     sys.exit(1)
 
             from lib.subnet import SubnetProxy
-            from lib.socks import ThreadingTCPServer, SocksProxy
+            from lib.socks import ThreadingTCPServer, ThreadingTCPServer6, SocksProxy
+
+            listen_address = ipaddress.ip_network(options.listen_address, strict=False)
 
             subnet_proxy = SubnetProxy(
                 interface=options.interface, subnet=options.subnet
             )
             try:
                 subnet_proxy.start()
-                with ThreadingTCPServer(
+                tcp_server = (
+                    ThreadingTCPServer
+                    if listen_address.version == 4
+                    else ThreadingTCPServer6
+                )
+                with tcp_server(
                     (options.listen_address, options.port),
                     SocksProxy,
                     proxy=subnet_proxy,
