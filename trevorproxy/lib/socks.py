@@ -26,7 +26,7 @@ class ThreadingTCPServer6(ThreadingTCPServer):
 
 class SocksProxy(StreamRequestHandler):
     def handle(self):
-        log.debug("Accepting connection from %s:%s", self.client_address[:2])
+        log.debug("Accepting connection from %s:%s", *self.client_address[:2])
 
         # greeting header
         try:
