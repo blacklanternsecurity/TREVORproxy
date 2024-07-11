@@ -47,13 +47,13 @@ $ sudo trevorproxy subnet -s dead:beef::0/64 -i eth0
 
 # Test SOCKS proxy
 # Note that each request has a different source IP address
-$ curl --proxy socks5://127.0.0.1:1080 -6 api64.ipify.org
+$ curl --proxy socks5://127.0.0.1:1080 api64.ipify.org
 dead:beef::74d0:b1be:3166:c934
-$ curl --proxy socks5://127.0.0.1:1080 -6 api64.ipify.org
+$ curl --proxy socks5://127.0.0.1:1080 api64.ipify.org
 dead:beef::4927:1b4:8e5f:d44d
-$ curl --proxy socks5://127.0.0.1:1080 -6 api64.ipify.org
+$ curl --proxy socks5://127.0.0.1:1080 api64.ipify.org
 dead:beef::2bb8:7b79:706e:cb7d
-$ curl --proxy socks5://127.0.0.1:1080 -6 api64.ipify.org
+$ curl --proxy socks5://127.0.0.1:1080 api64.ipify.org
 dead:beef::7e13:abe3:dc24:5a00
 ~~~
 
