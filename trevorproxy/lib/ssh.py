@@ -46,7 +46,7 @@ class SSHProxy:
                 _bg_exc=False,
                 **self.ssh_args,
             )
-            self.command = b" ".join(self.sh.cmd).decode()
+            self.command = " ".join(self.sh.cmd)
             log.debug(self.command)
         else:
             log.debug(
@@ -95,7 +95,7 @@ class SSHProxy:
 
         netstat = sp.run(["ss", "-ntlp"], stderr=sp.DEVNULL, stdout=sp.PIPE)
         if not f" 127.0.0.1:{self.proxy_port} " in netstat.stdout.decode():
-            log.debug(f'Waiting for {" ".join([x.decode() for x in self.sh.cmd])}')
+            log.debug(f'Waiting for {" ".join(self.sh.cmd)}')
             self.running = False
         else:
             self.running = True

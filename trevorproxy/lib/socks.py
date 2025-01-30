@@ -34,9 +34,11 @@ class SocksProxy(StreamRequestHandler):
             header = self.connection.recv(2)
             version, nmethods = struct.unpack("!BB", header)
 
-            # socks 5
-            assert version == SOCKS_VERSION
-            assert nmethods > 0
+            # require socks 5
+            if version != SOCKS_VERSION:
+                raise ValueError(f"Only SOCKS version 5 is supported (socks5://)")
+            elif nmethods <= 0:
+                raise ValueError(f"SOCKS requests must specify a method")
 
             # get available methods
             methods = self.get_available_methods(nmethods)
@@ -55,7 +57,9 @@ class SocksProxy(StreamRequestHandler):
             version, cmd, _, address_type = struct.unpack(
                 "!BBBB", self.connection.recv(4)
             )
-            assert version == SOCKS_VERSION
+            # require socks 5
+            if version != SOCKS_VERSION:
+                raise ValueError(f"Only SOCKS version 5 is supported (socks5://)")
 
             address = None
             self.address_family = (
