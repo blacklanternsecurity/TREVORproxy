@@ -220,16 +220,27 @@ class SocksProxy(StreamRequestHandler):
         )
 
     def exchange_loop(self, client, remote):
-        while 1:
-            # wait until client or remote is available for read
-            r, w, e = select.select([client, remote], [], [])
+        try:
+            while True:
+                # wait until client or remote is available for read
+                r, w, e = select.select([client, remote], [], [])
 
-            if client in r:
-                data = client.recv(4096)
-                if remote.send(data) <= 0:
-                    break
+                if client in r:
+                    data = client.recv(4096)
+                    if remote.send(data) <= 0:
+                        break
 
-            if remote in r:
-                data = remote.recv(4096)
-                if client.send(data) <= 0:
-                    break
+                if remote in r:
+                    data = remote.recv(4096)
+                    if client.send(data) <= 0:
+                        break
+        except Exception as e:
+            if log.level <= logging.DEBUG:
+                e = traceback.format_exc()
+            log.error(f"Error in data exchange: {e}")
+        finally:
+            # Ensure remote socket is properly closed
+            try:
+                remote.close()
+            except:
+                pass
