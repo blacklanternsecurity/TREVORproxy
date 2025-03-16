@@ -71,7 +71,9 @@ def main():
     try:
         options = parser.parse_args()
 
-        if not options.quiet:
+        if options.quiet:
+            logging.getLogger("trevorproxy").setLevel(logging.WARN)
+        elif options.verbose:
             logging.getLogger("trevorproxy").setLevel(logging.DEBUG)
 
         if options.proxytype == "ssh":
