@@ -8,7 +8,7 @@ Note: If you're looking to defend against this attack, we wrote a [good rate lim
 
 By [@thetechr0mancer](https://twitter.com/thetechr0mancer)
 
-[![License](https://img.shields.io/badge/license-GPLv3-blue.svg)](https://raw.githubusercontent.com/blacklanternsecurity/nmappalyzer/master/LICENSE)
+[![License](https://img.shields.io/badge/license-AGPLv3-blue.svg)](LICENSE)
 [![Python Version](https://img.shields.io/badge/python-3.6+-blue)](https://www.python.org)
 
 ## Installation
@@ -146,3 +146,9 @@ optional arguments:
 ![trevor](https://user-images.githubusercontent.com/20261699/92336575-27071380-f070-11ea-8dd4-5ba42c7d04b7.jpeg)
 
 `#trevorforget`
+
+## License
+
+Copyright (C) 2021 Black Lantern Security
+
+Licensed under the GNU Affero General Public License v3.0 or later (`AGPL-3.0-or-later`). See [LICENSE](LICENSE).

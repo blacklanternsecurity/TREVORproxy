@@ -3,7 +3,7 @@ name = "trevorproxy"
 version = "1.0.9"
 description = "Rotate your source IP address via SSH proxies and other methods"
 authors = ["TheTechromancer"]
-license = "GPL-3.0"
+license = "AGPL-3.0-or-later"
 repository = "https://github.com/blacklanternsecurity/TREVORproxy"
 homepage = "https://github.com/blacklanternsecurity/TREVORproxy"
 
