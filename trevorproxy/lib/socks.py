@@ -1,4 +1,6 @@
 # NOTE: Adapted from https://github.com/rushter/socks5
+# Original: Copyright (c) 2018 Artem Golubin, MIT License (see THIRD_PARTY_NOTICES.md).
+# Modifications: Copyright (C) Black Lantern Security, AGPL-3.0-or-later.
 
 import select
 import socket
